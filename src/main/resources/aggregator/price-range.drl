@@ -1,0 +1,47 @@
+package ws.exon.cm.trade.aggregate;
+
+import java.util.UUID;
+import ws.exon.cm.market.model.Symbol
+import ws.exon.cm.market.model.core.Deal
+import ws.exon.cm.market.model.aggregator.Aggregate
+import ws.exon.cm.market.model.rules.range.PriceRangeCandle
+import ws.exon.cm.market.model.aggregator.factory.range.PriceRangeFactory
+
+rule "New PriceRangeCandle"
+    when
+        $df: PriceRangeFactory($s := symbol, $th := threshold, $cw: cw(), $lid: lastId)
+        $a: Deal($s := symbol, id > $lid, $dir: direction) from entry-point "Market Data/Trades"
+        not PriceRangeCandle($s := symbol, $th := threshold, clusterWidth == $cw)
+    then
+        Aggregate ag = new Aggregate(UUID.randomUUID(), $a);
+        PriceRangeCandle candle = new PriceRangeCandle($s, ag, $th, $cw, $a.getPrice());
+        insert(candle);
+//        System.out.println(drools.getRule().getName() + "-> " + $a.toString());
+    end
+
+rule "PriceRangeCandle merge DealLong"
+    when
+        $df: PriceRangeFactory($s := symbol, $th := threshold, $cw: cw())
+        $a: Deal($aid: id, $s := symbol, $priceLong: priceLong.value) from entry-point "Market Data/Trades"
+        $c: PriceRangeCandle($s := symbol, $aid > aggregate.closeDealId, $priceLong >= lowerBound && $priceLong < upperBound)
+    then
+//        System.out.println(drools.getRule().getName() + "-> " + $c.toString());
+        $c.getAggregate().merge($a);
+        update($c);
+//        System.out.println(drools.getRule().getName() + "-> " + $c.toString());
+//        System.out.println(drools.getRule().getName() + "-> " + $a.toString());
+    end
+
+rule "PriceRangeCandle Finish DealLong"
+    when
+        $df: PriceRangeFactory($s := symbol, $th := threshold, $cw: cw())
+        $a: Deal($s := symbol, $aid: id, $priceLong: priceLong.value) from entry-point "Market Data/Trades"
+        $c: PriceRangeCandle($s := symbol, $priceLong < lowerBound || $priceLong >= upperBound, $aid > aggregate.closeDealId)
+    then
+        channels["Candles"].send($c);
+        delete($c);
+        modify($df) {
+            setLastId($c.getAggregate().getCloseDealId())
+        }
+//        System.out.println(drools.getRule().getName() + "-> " + $a.toString());
+    end

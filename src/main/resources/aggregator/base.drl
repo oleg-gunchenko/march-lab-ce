@@ -1,0 +1,49 @@
+package ws.exon.cm.trade.aggregate;
+
+import ws.exon.cm.market.model.core.Deal;
+import ws.exon.cm.market.model.core.Match;
+import ws.exon.cm.market.model.Symbol;
+import ws.exon.cm.market.model.aggregator.Aggregate;
+import ws.exon.cm.market.model.rules.CumulativeData;
+
+
+function void update_last_deal(CumulativeData ld, Deal d) {
+        int direction = d.getDirection();
+        long volume = d.getVolume();
+        if (direction == 1)
+            ld.setDelta(ld.getDelta() + volume);
+        else if (direction == 2)
+            ld.setDelta(ld.getDelta() - volume);
+        if (ld.getDeal() != null)
+            ld.setOi(ld.getOi() + (d.getOpenInterest() - ld.getDeal().getOpenInterest()));
+}
+
+rule "Insert CumulativeData"
+    when
+        $d: Deal($s: symbol) from entry-point "Market Data/Trades"
+        not CumulativeData(symbol == $s)
+    then
+        CumulativeData ld = new CumulativeData();
+        update_last_deal(ld, $d);
+        ld.setSymbol($s);
+        ld.setDeal($d);
+        insert(ld);
+        //System.out.println(drools.getRule().getName() + "-> " + $d.toString());
+//        System.out.println(drools.getRule().getName() + "-> " + $d.toString());
+    end
+
+ rule "Update Last DealLong"
+    salience -500
+    when
+        $ld: CumulativeData($s: symbol, $lid: DealLong.id)
+        $d: Deal(this after $ld || this coincides $ld, symbol == $s, id > $lid) from entry-point "Market Data/Trades"
+    then
+        //System.out.println(drools.getRule().getName() + "-> " + $ld.toString());
+        update_last_deal($ld, $d);
+        modify($ld){
+            setDeal($d)
+        }
+//        System.out.println(drools.getRule().getName() + "-> " + $d.toString());
+//        System.out.println(drools.getRule().getName() + "-> " + $ld.toString());
+    end
+

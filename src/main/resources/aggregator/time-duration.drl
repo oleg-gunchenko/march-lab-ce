@@ -1,0 +1,81 @@
+package ws.exon.cm.trade.aggregate;
+
+import java.util.UUID;
+import java.util.List;
+import ws.exon.cm.market.model.Symbol
+import ws.exon.cm.market.model.core.Deal
+import ws.exon.cm.market.model.aggregator.Aggregate
+import ws.exon.cm.market.model.rules.time.CheckpointInterval
+import ws.exon.cm.market.model.rules.time.DurationCheckpoint
+import ws.exon.cm.market.model.rules.CumulativeData
+import ws.exon.cm.market.model.rules.time.TimeCandle
+import ws.exon.cm.market.model.aggregator.factory.DurationFactory
+import ws.exon.cm.market.model.aggregator.factory.AggregationFactory
+import ws.exon.cm.market.model.aggregator.factory.AggregationFactory.Indicator
+import ws.exon.cm.market.model.aggregator.factory.AggregationFactory.FactoryClass
+import org.kie.api.time.SessionClock
+
+global SessionClock clock;
+
+rule "New TimeCandle"
+    when
+        $df: DurationFactory($s: symbol, $th: threshold, $lid: lastId)
+        $a: Deal(symbol == $s, id > $lid, $dir: direction) from entry-point "Market Data/Trades"
+        not TimeCandle(symbol == $s, threshold == $th)
+    then
+        insert(new TimeCandle($s, $th, $a.getTs(), new Aggregate(UUID.randomUUID(), $a)));
+//        System.out.println(drools.getRule().getName() + "-> " + $a.toString());
+    end
+
+
+rule "Check TimeCandle merge DealLong"
+    when
+        $df: DurationFactory($s: symbol, $th: threshold)
+        $a: Deal(symbol == $s, $aid: id, $dir: direction) from entry-point "Market Data/Trades"
+        $c: TimeCandle(this includes $a, symbol == $s, threshold == $th, $aid > aggregate.closeDealId)
+    then
+        modify($c){
+           aggregate.merge($a)
+        }
+    end
+
+rule "Check TimeCandle merge Finish DealLong"
+    when
+        $df: DurationFactory($s: symbol, $th: threshold)
+        $a: Deal(symbol == $s, $aid: id, $dir: direction) from entry-point "Market Data/Trades"
+        $c: TimeCandle(this before $a, symbol == $s, threshold == $th, $aid > aggregate.closeDealId)
+    then
+        channels["Candles"].send($c);
+        delete($c);
+        modify($df) {
+            setLastId($a.id)
+        }
+    end
+
+
+rule "Check Duration and delete Candle"
+    when
+        $dc: DurationCheckpoint($th: threshold)
+        $df: DurationFactory($s: symbol, threshold == $th)
+        $c: TimeCandle(this finishes $dc, symbol == $s, threshold == $th, $ag: aggregate)
+    then
+        channels["Candles"].send($c);
+        delete($c);
+        modify($df) {
+            setLastId($ag.getCloseDealId())
+        }
+    end
+
+//rule "CheckpointInterval Trigger"
+//    timer(expr: $d, $p)
+//    when
+//        CheckpointInterval($d: delay, $p: period)
+//        $df: DurationFactory($th: threshold)
+//        not DurationCheckpoint(threshold == $th)
+//    then
+//        long ts = drools.getWorkingMemory().getSessionClock().getCurrentTime();
+//        DurationCheckpoint ats = new DurationCheckpoint($df.getThreshold());
+//        ats.setTs(ts);
+//        insert(ats)
+//       // System.out.println(drools.getRule().getName() + " -> " + ats.toString());
+//    end

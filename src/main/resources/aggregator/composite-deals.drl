@@ -1,0 +1,94 @@
+package ws.exon.cm.trade.aggregate;
+
+import ws.exon.cm.market.model.core.Deal;
+import ws.exon.cm.market.model.Symbol;
+import ws.exon.cm.market.model.core.Match;
+import ws.exon.cm.market.model.aggregator.Aggregate;
+import ws.exon.cm.market.model.aggregator.CompositeDeal;
+import ws.exon.cm.market.model.aggregator.factory.CumulativeDealFactory;
+import org.kie.api.time.SessionClock
+
+dialect "mvel"
+
+global SessionClock clock;
+
+rule "New Composite DealLong"
+    salience -1000
+    when
+        CumulativeDealFactory($s: symbol)
+        $a: Deal(symbol == $s, $aid: id, $dir: direction) from entry-point "Market Data/Trades"
+        $b: Deal(this coincides $a, symbol == $s, direction == $dir, id == $aid + 1) from entry-point "Market Data/Trades"
+        not CompositeDeal(this coincides $a, symbol == $s)
+    then
+        CompositeDeal cd = new CompositeDeal();
+        cd.symbol = $a.symbol;
+        cd.ts = $a.priceLong.ts;
+
+        cd.direction = $a.direction;
+
+        cd.openId = $a.id;
+        cd.openPrice = $a.priceLong.value;
+        cd.openOI = $a.openInterest;
+
+        cd.closeId = $b.id;
+        cd.closePrice = $b.priceLong.value;
+        cd.closeOI = $b.openInterest;
+
+        cd.volume = $b.volume + $a.volume;
+        cd.oi = $b.openInterest - $a.openInterest;
+
+        delete($a);
+        delete($b);
+        insert(cd);
+//        System.out.println(drools.getRule().getName() + "-> ");
+//        System.out.println(drools.getRule().getName() + "-> " + $a.toString());
+//        System.out.println(drools.getRule().getName() + "-> " + $b.toString());
+    end
+
+
+
+rule "Update CompositeDeal"
+    salience -1000
+    when
+        CumulativeDealFactory($s: symbol)
+        $a: CompositeDeal(symbol == $s, $dir: direction)
+        $b: Deal(this coincides $a, symbol == $s, direction == $dir) from entry-point "Market Data/Trades";
+    then
+        long doi = $b.getOpenInterest();
+        modify($a) {
+            closeId = $b.id,
+            closePrice = $b.priceLong.value,
+            volume = $a.volume + $b.volume,
+            oi = $a.oi + $a.closeOI - doi,
+            closeOI = doi
+        }
+        delete($b);
+//        System.out.println(drools.getRule().getName() + "-> " + $a.toString());
+//        System.out.println(drools.getRule().getName() + "-> " + $b.toString());
+    end
+
+rule "Finalise Composite Deal"
+    when
+        CumulativeDealFactory($s: symbol)
+        $a: CompositeDeal(symbol == $s, $aid: closeId)
+        $b: Deal(this after $a, symbol == $s, id > $aid) from entry-point "Market Data/Trades";
+    then
+        channels["CompositeDeals"].send($a);
+        delete($a);
+//        System.out.println(drools.getRule().getName() + "-> " + $a.toString());
+//        System.out.println(drools.getRule().getName() + "-> " + $b.toString());
+    end
+
+rule "Send Previous Single Deal"
+    salience -5000
+    when
+        $a: Deal($s: symbol, $aid: id) from entry-point "Market Data/Trades";
+        $b: Deal(this after $a, symbol == $s, id > $aid) from entry-point "Market Data/Trades";
+        CumulativeDealFactory(symbol == $s)
+        not CompositeDeal(this coincides $a || this coincides $b, symbol == $s)
+    then
+        channels["CompositeDeals"].send($a);
+        delete($a);
+//        System.out.println(drools.getRule().getName() + "-> " + $a.toString());
+//        System.out.println(drools.getRule().getName() + "-> " + $b.toString());
+    end
