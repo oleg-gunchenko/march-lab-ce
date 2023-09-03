@@ -35,6 +35,7 @@ dependencies {
     implementation("org.reflections:reflections:0.9.12")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.projectlombok:lombok:1.18.18")
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     implementation("org.hibernate:hibernate-jpamodelgen:5.4.12.Final")
