@@ -10,13 +10,16 @@ plugins {
 group = "ws.exon.ecm.marchlabce"
 version = "1.0-SNAPSHOT"
 
+val javaVersion = "1.16"
+val kotlinVersion = "1.6.10"
+
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
     implementation((kotlin("stdlib")))
-
     implementation("org.decimal4j:decimal4j:1.0.3")
 
     implementation("org.threeten:threeten-extra:1.7.2")
@@ -34,25 +37,28 @@ dependencies {
     implementation("com.google.guava:guava:31.0.1-jre")
     implementation("org.reflections:reflections:0.9.12")
 
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-json")
+//    implementation("org.springframework.amqp:spring-rabbit")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.projectlombok:lombok:1.18.18")
-    runtimeOnly("org.springframework.boot:spring-boot-devtools")
+    implementation("org.liquibase:liquibase-core")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    implementation("org.hibernate:hibernate-jpamodelgen:5.4.12.Final")
-    annotationProcessor("org.hibernate:hibernate-jpamodelgen")
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-
-
-    testImplementation(("org.junit.jupiter:junit-jupiter-api:5.6.0"))
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
-tasks.getByName<Test>("test") {
-    useJUnitPlatform()
+val mainClassName = "ws.exon.cm.market.MArchLabApplication"
+val jarName = "march-lab-ce"
+
+springBoot {
+    buildInfo()
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = freeCompilerArgs.plus("-Xjsr305=strict")
+tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootJar>() {
+    enabled = true
+    archiveBaseName.set(jarName)
+    mainClass.set(mainClassName)
+    manifest {
+        attributes("Main-Class" to "org.springframework.boot.loader.PropertiesLauncher",
+        "Start-Class" to mainClassName)
     }
 }
+

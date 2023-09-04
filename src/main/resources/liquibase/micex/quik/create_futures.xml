@@ -1,0 +1,108 @@
+<database_changeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd"
+    logicalFilePath="path-independent">
+
+    <changeSet id="create futures_info table" author="oleg.gunchenko">
+        <create_table tableName="futures_info" schemaName="public">
+            <column name="id" type="VARCHAR(512)" remarks="ID"> <constraints nullable="false"/> </column>
+            <column name="instrument_code" type="VARCHAR(512)" remarks="Код инструмента"> <constraints nullable="false"/> </column>
+            <column name="instrument_class_code" type="VARCHAR(512)" remarks="Код класса"> <constraints nullable="false"/> </column>
+            <column name="trading_date" type="VARCHAR(512)" remarks="Дата торгов"> <constraints nullable="false"/> </column>
+            <column name="maturity_date" type="VARCHAR(512)" remarks="Дата погашения"> <constraints nullable="false"/> </column>
+            <column name="days_to_maturity" type="INTEGER" remarks="Число дней до погашения"> <constraints nullable="false"/> </column>
+            <column name="execution_date" type="VARCHAR(512)" remarks="Дата исполнения инструмента"> <constraints nullable="false"/> </column>
+            <column name="base_instrument_code" type="VARCHAR(512)" remarks="Базовый актив"> <constraints nullable="false"/> </column>
+            <column name="base_class_code" type="VARCHAR(512)" remarks="Класс базового актива"> <constraints nullable="false"/> </column>
+            <column name="seller_warranty_coverage" type="NUMERIC(36,8)" remarks="Гарантийное обеспечение продавца"> <constraints nullable="false"/> </column>
+            <column name="buyer_warranty_coverage" type="NUMERIC(36,8)" remarks="Гарантийное обеспечение покупателя"> <constraints nullable="false"/> </column>
+            <column name="future_type" type="VARCHAR(512)" remarks="Тип фьючерса"> <constraints nullable="false"/> </column>
+            <column name="future_price_type" type="VARCHAR(512)" remarks="Тип цены фьючерса"> <constraints nullable="false"/> </column>
+        </create_table>
+    </changeSet>
+    <changeSet id="create futures_info PK" author="oleg.gunchenko">
+        <addPrimaryKey
+                schemaName="public"
+                constraintName="futures_info_pk"
+                tableName="futures_info"
+                columnNames="id"
+        />
+    </changeSet>
+    <changeSet id="create futures_info_code_class index" author="oleg.gunchenko">
+        <create_index
+                schemaName="public"
+                indexName="idx_futures_info"
+                tableName="futures_info"
+                unique="true"
+        >
+            <column name="instrument_code"/>
+            <column name="instrument_class"/>
+        </create_index>
+    </changeSet>
+
+    <changeSet id="create futures_market_data table" author="oleg.gunchenko">
+        <create_table tableName="futures_market_data" schemaName="public">
+            <column name="id" type="VARCHAR(512)" remarks="ID"> <constraints nullable="false"/> </column>
+            <column name="instrument_code" type="VARCHAR(512)" remarks="Код инструмента"> <constraints nullable="false"/> </column>
+            <column name="instrument_class_code" type="VARCHAR(512)" remarks="Код класса"> <constraints nullable="false"/> </column>
+            <column name="trading_date" type="VARCHAR(512)" remarks="Дата торгов"> <constraints nullable="false"/> </column>
+            <column name="open_interest" type="INTEGER" remarks="Открытый интерес"> <constraints nullable="false"/> </column>
+        </create_table>
+    </changeSet>
+
+    <changeSet id="create futures_market_data PK" author="oleg.gunchenko">
+        <addPrimaryKey
+                schemaName="public"
+                constraintName="futures_market_data_pk"
+                tableName="futures_market_data"
+                columnNames="id"
+        />
+    </changeSet>
+
+    <changeSet id="create futures_market_data code and class index" author="oleg.gunchenko">
+        <create_index
+                schemaName="public"
+                indexName="idx_futures_market_data"
+                tableName="futures_market_data"
+                unique="true"
+        >
+            <column name="instrument_code"/>
+            <column name="instrument_class"/>
+        </create_index>
+    </changeSet>
+
+    <changeSet id="create v_futures_info view" author="oleg.gunchenko" runOnChange="true">
+        <comment>MICEX Futures Full Info</comment>
+        <createView viewName="v_futures_info" schemaName="public">
+            <![CDATA[
+            ]]>
+        </createView>
+    </changeSet>
+
+    <changeSet id="create v_futures_market_data view" author="oleg.gunchenko" runOnChange="true">
+        <comment>MICEX Futures Full Info</comment>
+        <createView viewName="v_futures_market_data" schemaName="public">
+            <![CDATA[
+            ]]>
+        </createView>
+    </changeSet>
+
+    <changeSet id="create futures_deals table" author="oleg.gunchenko">
+        <create_table tableName="futures_deals" schemaName="public">
+            <column name="id" type="VARCHAR(512)" remarks="ID"> <constraints nullable="false"/> </column>
+            <column name="deal_id" type="BIGINT" remarks="Номер"> <constraints nullable="false"/> </column>
+            <column name="instrument_code" type="VARCHAR(512)" remarks="Код инструмента"> <constraints nullable="false"/> </column>
+            <column name="instrument_class_code" type="VARCHAR(512)" remarks="Код класса"> <constraints nullable="false"/> </column>
+            <column name="trading_date" type="VARCHAR(512)" remarks="Дата торгов"> <constraints nullable="false"/> </column>
+            <column name="time" type="VARCHAR(512)" remarks="Время"> <constraints nullable="false"/> </column>
+            <column name="mcs" type="VARCHAR(512)" remarks="Время(мкс)"> <constraints nullable="false"/> </column>
+            <column name="operation" type="VARCHAR(512)" remarks="Операция"> <constraints nullable="false"/> </column>
+            <column name="price" type="NUMERIC(36,8)" remarks="Цена"> <constraints nullable="false"/> </column>
+            <column name="qty" type="INTEGER" remarks="Количество"> <constraints nullable="false"/> </column>
+            <column name="open_interest" type="INTEGER" remarks="Открытый интерес"> <constraints nullable="false"/> </column>
+        </create_table>
+    </changeSet>
+
+
+</database_changeLog>

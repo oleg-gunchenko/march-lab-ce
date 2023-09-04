@@ -1,0 +1,11 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd"
+    logicalFilePath="path-independent">
+
+    <include file="micex/quik/create_common.xml" relativeToChangelogFile="true" />
+    <include file="micex/quik/create_futures.xml" relativeToChangelogFile="true" />
+    <include file="micex/quik/create_stocks.xml" relativeToChangelogFile="true" />
+
+</databaseChangeLog>
