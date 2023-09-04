@@ -1,0 +1,112 @@
+<database_changeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd"
+        logicalFilePath="path-independent">
+
+    <changeSet id="create stocks_info table" author="oleg.gunchenko">
+        <create_table tableName="stocks_info" schemaName="public">
+            <column name="id" type="VARCHAR(512)" remarks="ID"> <constraints nullable="false"/> </column>
+            <column name="instrument_code" type="VARCHAR(512)" remarks="Код инструмента"> <constraints nullable="false"/> </column>
+            <column name="instrument_class_code" type="VARCHAR(512)" remarks="Код класса"> <constraints nullable="false"/> </column>
+            <column name="trading_date" type="VARCHAR(512)" remarks="Дата торгов"> <constraints nullable="false"/> </column>
+            <column name="isin" type="String" remarks="ISIN"> <constraints nullable="false"/> </column>
+            <column name="registration_number" type="String" remarks="Регистрационный номер"> <constraints nullable="false"/> </column>
+            <column name="quotation_tier" type="Integer" remarks="Уровень листинга"> <constraints nullable="false"/> </column>
+            <column name="registry_closing_date" type="String" remarks="Дата закрытия реестра"> <constraints nullable="false"/> </column>
+            <column name="dividend_amount" type="Big_decimal" remarks="Величина дивидендов"> <constraints nullable="false"/> </column>
+            <column name="conjugate_currency" type="String" remarks="Сопряженная валюта"> <constraints nullable="false"/> </column>
+            <column name="auction_id" type="String" remarks="I_d аукциона"> <constraints nullable="false"/> </column>
+            <column name="scheduled_auction_start_time" type="String" remarks="Время начала аукциона план"> <constraints nullable="false"/> </column>
+            <column name="basis_repo" type="String" remarks="Базис РЕПО"> <constraints nullable="false"/> </column>
+        </create_table>
+    </changeSet>
+    <changeSet id="create stocks_info PK" author="oleg.gunchenko">
+        <addPrimaryKey
+                schemaName="public"
+                constraintName="stocks_info_pk"
+                tableName="stocks_info"
+                columnNames="id"
+        />
+    </changeSet>
+    <changeSet id="create stocks_info_code_class index" author="oleg.gunchenko">
+        <create_index
+                schemaName="public"
+                indexName="idx_stocks_info"
+                tableName="stocks_info"
+                unique="true"
+        >
+            <column name="instrument_code"/>
+            <column name="instrument_class"/>
+        </create_index>
+    </changeSet>
+
+    <changeSet id="create stocks_market_data table" author="oleg.gunchenko">
+        <create_table tableName="stocks_market_data" schemaName="public">
+            <column name="id" type="VARCHAR(512)" remarks="ID"> <constraints nullable="false"/> </column>
+            <column name="instrument_code" type="VARCHAR(512)" remarks="Код инструмента"> <constraints nullable="false"/> </column>
+            <column name="instrument_class_code" type="VARCHAR(512)" remarks="Код класса"> <constraints nullable="false"/> </column>
+            <column name="trading_date" type="VARCHAR(512)" remarks="Дата торгов"> <constraints nullable="false"/> </column>
+            <column name="auction_price" type="Big_decimal" remarks="Цена аукциона"> <constraints nullable="false"/> </column>
+            <column name="auction_volume" type="Big_decimal" remarks="Объем аукциона"> <constraints nullable="false"/> </column>
+            <column name="auction_qty" type="Big_decimal" remarks="Количество аукциона"> <constraints nullable="false"/> </column>
+            <column name="auction_deal_count" type="Big_decimal" remarks="Количество сделок аукциона"> <constraints nullable="false"/> </column>
+            <column name="pa_imbalance" type="Big_decimal" remarks="Дисбаланс ПА"> <constraints nullable="false"/> </column>
+            <column name="pre_trade_price" type="Big_decimal" remarks="Цена предторгового периода"> <constraints nullable="false"/> </column>
+            <column name="counterparty_price" type="Big_decimal" remarks="Цена контрагента"> <constraints nullable="false"/> </column>
+        </create_table>
+    </changeSet>
+
+    <changeSet id="create stocks_market_data PK" author="oleg.gunchenko">
+        <addPrimaryKey
+                schemaName="public"
+                constraintName="stocks_market_data_pk"
+                tableName="stocks_market_data"
+                columnNames="id"
+        />
+    </changeSet>
+
+    <changeSet id="create stocks_market_data code and class index" author="oleg.gunchenko">
+        <create_index
+                schemaName="public"
+                indexName="idx_stocks_market_data"
+                tableName="stocks_market_data"
+                unique="true"
+        >
+            <column name="instrument_code"/>
+            <column name="instrument_class"/>
+        </create_index>
+    </changeSet>
+
+    <changeSet id="create v_stocks_info view" author="oleg.gunchenko" runOnChange="true">
+        <comment>MICEX Stocks Full Info</comment>
+        <createView viewName="v_stocks_info" schemaName="public">
+            <![CDATA[
+            ]]>
+        </createView>
+    </changeSet>
+
+    <changeSet id="create v_stocks_market_data view" author="oleg.gunchenko" runOnChange="true">
+        <comment>MICEX Stocks Full Info</comment>
+        <createView viewName="v_stocks_market_data" schemaName="public">
+            <![CDATA[
+            ]]>
+        </createView>
+    </changeSet>
+
+    <changeSet id="create stocks_deals table" author="oleg.gunchenko">
+        <create_table tableName="stocks_deals" schemaName="public">
+            <column name="id" type="VARCHAR(512)" remarks="ID"> <constraints nullable="false"/> </column>
+            <column name="deal_id" type="BIGINT" remarks="Номер"> <constraints nullable="false"/> </column>
+            <column name="instrument_code" type="VARCHAR(512)" remarks="Код инструмента"> <constraints nullable="false"/> </column>
+            <column name="instrument_class_code" type="VARCHAR(512)" remarks="Код класса"> <constraints nullable="false"/> </column>
+            <column name="trading_date" type="VARCHAR(512)" remarks="Дата торгов"> <constraints nullable="false"/> </column>
+            <column name="time" type="VARCHAR(512)" remarks="Время"> <constraints nullable="false"/> </column>
+            <column name="mcs" type="VARCHAR(512)" remarks="Время(мкс)"> <constraints nullable="false"/> </column>
+            <column name="operation" type="VARCHAR(512)" remarks="Операция"> <constraints nullable="false"/> </column>
+            <column name="price" type="NUMERIC(36,8)" remarks="Цена"> <constraints nullable="false"/> </column>
+            <column name="qty" type="INTEGER" remarks="Количество"> <constraints nullable="false"/> </column>
+        </create_table>
+    </changeSet>
+
+</database_changeLog>

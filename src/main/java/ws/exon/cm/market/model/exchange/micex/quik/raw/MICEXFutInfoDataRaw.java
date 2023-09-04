@@ -4,7 +4,7 @@ import ws.exon.cm.market.model.exchange.micex.quik.meta.QuikAttr;
 
 import java.math.BigDecimal;
 
-public class MICEXFutInfoDataRaw {
+public class MICEXFutInfoDataRaw extends MICEXCommonInfoRaw {
     @QuikAttr(title = "Код инструмента", shortTitle = "Код инструмента")
     private String instrumentCode;
     @QuikAttr(title = "Код класса", shortTitle = "Код класса")

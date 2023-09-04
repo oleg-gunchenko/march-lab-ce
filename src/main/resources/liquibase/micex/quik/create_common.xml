@@ -1,0 +1,119 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd"
+    logicalFilePath="path-independent">
+    <!--
+    \@QuikAttr\(title \= \"([А-Яа-я\s\.\d]*)\"\, shortTitle \= \"(.*)\"\) private (\w+) (\w+)\;
+    ////////////////////////////////
+    <column name="$4" type="$3" remarks="$1"> <constraints nullable="false"/> </column>
+    -->
+
+    <changeSet id="create common_info table" author="oleg.gunchenko">
+        <createTable tableName="common_info" schemaName="public">
+            <column name="id" type="VARCHAR(512)" remarks="ID"> <constraints nullable="false"/> </column>
+            <column name="instrument_title" type="VARCHAR(512)" remarks="Полное название инструмента"> <constraints nullable="false"/> </column>
+            <column name="instrument_title_short" type="VARCHAR(512)" remarks="Краткое название инструмента"> <constraints nullable="false"/> </column>
+            <column name="instrument_code" type="VARCHAR(512)" remarks="Код инструмента"> <constraints nullable="false"/> </column>
+            <column name="instrument_class" type="VARCHAR(512)" remarks="Название класса"> <constraints nullable="false"/> </column>
+            <column name="instrument_class_code" type="VARCHAR(512)" remarks="Код класса"> <constraints nullable="false"/> </column>
+            <column name="trading_date" type="VARCHAR(512)" remarks="Дата торгов"> <constraints nullable="false"/> </column>
+            <column name="instrument_type" type="VARCHAR(512)" remarks="Тип инструмента"> <constraints nullable="false"/> </column>
+            <column name="instrument_subtype" type="VARCHAR(512)" remarks="Подтип инструмента"> <constraints nullable="false"/> </column>
+            <column name="base_instrument_class" type="VARCHAR(512)" remarks="Класс базового актива"> <constraints nullable="false"/> </column>
+            <column name="base_instrument_code" type="VARCHAR(512)" remarks="Базовый актив"> <constraints nullable="false"/> </column>
+            <column name="qualified_investor" type="VARCHAR(512)" remarks="Квалифицированный инвестор"> <constraints nullable="false"/> </column>
+            <column name="min_possible_price" type="NUMERIC(36,8)" remarks="Минимально возможная цена"> <constraints nullable="false"/> </column>
+            <column name="max_possible_price" type="NUMERIC(36,8)" remarks="Максимально возможная цена"> <constraints nullable="false"/> </column>
+            <column name="restrict_neg_price" type="VARCHAR(512)" remarks="Признак ограничения отрицательных цен"> <constraints nullable="false"/> </column>
+            <column name="qty_precision" type="INTEGER" remarks="Точность количества"> <constraints nullable="false"/> </column>
+            <column name="max_actual_qty_precision" type="INTEGER" remarks="Макс. актуальная точность количества"> <constraints nullable="false"/> </column>
+            <column name="price_precision" type="INTEGER" remarks="Точность цены"> <constraints nullable="false"/> </column>
+            <column name="price_step" type="NUMERIC(36,8)" remarks="Минимальный шаг цены"> <constraints nullable="false"/> </column>
+            <column name="price_step_cost" type="NUMERIC(36,8)" remarks="Стоимость шага цены"> <constraints nullable="false"/> </column>
+            <column name="price_step_cost_currency" type="NUMERIC(36,8)" remarks="Стоимость шага цены в валюте"> <constraints nullable="false"/> </column>
+            <column name="price_step_currency" type="VARCHAR(512)" remarks="Валюта шага цены"> <constraints nullable="false"/> </column>
+            <column name="lot_size" type="NUMERIC(36,8)" remarks="Размер лота"> <constraints nullable="false"/> </column>
+            <column name="lot_multiplier" type="NUMERIC(36,8)" remarks="Кратность лота"> <constraints nullable="false"/> </column>
+            <column name="instrument_currency" type="VARCHAR(512)" remarks="Валюта номинала"> <constraints nullable="false"/> </column>
+            <column name="instrument_status" type="VARCHAR(512)" remarks="Статус торговли инструментом"> <constraints nullable="false"/> </column>
+            <column name="trade_session" type="VARCHAR(512)" remarks="Состояние сессии"> <constraints nullable="false"/> </column>
+            <column name="exchange_session" type="VARCHAR(512)" remarks="Биржевой статус торговой сессии"> <constraints nullable="false"/> </column>
+            <column name="morning_session" type="VARCHAR(512)" remarks="Доступность в утренней сессии"> <constraints nullable="false"/> </column>
+            <column name="day_session_begin" type="VARCHAR(512)" remarks="Начало основной сессии"> <constraints nullable="false"/> </column>
+            <column name="day_session_end" type="VARCHAR(512)" remarks="Окончание основной сессии"> <constraints nullable="false"/> </column>
+            <column name="evening_session_begin" type="VARCHAR(512)" remarks="Начало вечерней сессии"> <constraints nullable="false"/> </column>
+            <column name="evening_session_end" type="VARCHAR(512)" remarks="Окончание вечерней сессии"> <constraints nullable="false"/> </column>
+            <column name="extended_session" type="VARCHAR(512)" remarks="Допуск к вечерней сессии"> <constraints nullable="false"/> </column>
+            <column name="settlement_date" type="VARCHAR(512)" remarks="Дата расчетов"> <constraints nullable="false"/> </column>
+            <column name="settlement_date1" type="VARCHAR(512)" remarks="Дата расчетов 1"> <constraints nullable="false"/> </column>
+            <column name="settlement_code" type="VARCHAR(512)" remarks="Код расчетов по умолчанию"> <constraints nullable="false"/> </column>
+            <column name="clearing_status" type="VARCHAR(512)" remarks="Статус клиринга"> <constraints nullable="false"/> </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="create common_info PK" author="oleg.gunchenko">
+        <addPrimaryKey
+                schemaName="public"
+                constraintName="common_info_pk"
+                tableName="common_info"
+                columnNames="id"
+        />
+    </changeSet>
+    <changeSet id="create common_info_code_class index" author="oleg.gunchenko">
+        <createIndex
+                schemaName="public"
+                indexName="idx_common_info_code_class"
+                tableName="common_info"
+                unique="true"
+        >
+            <column name="instrument_code"/>
+            <column name="instrument_class"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="create common_market_data table" author="oleg.gunchenko">
+        <createTable tableName="common_market_data" schemaName="public">
+            <column name="id" type="VARCHAR(512)" remarks="ID"> <constraints nullable="false"/> </column>
+            <column name="instrument_code" type="VARCHAR(512)" remarks="Код инструмента"> <constraints nullable="false" /> </column>
+            <column name="instrument_class_code" type="VARCHAR(512)" remarks="Код класса"> <constraints nullable="false"/> </column>
+            <column name="trading_date" type="VARCHAR(512)" remarks="Дата торгов"> <constraints nullable="false"/> </column>
+            <column name="lastUpdate_time" type="VARCHAR(512)" remarks="Время последнего изменения"> <constraints nullable="false"/> </column>
+            <column name="last_deal_time" type="VARCHAR(512)" remarks="Время последней сделки"> <constraints nullable="false"/> </column>
+            <column name="total_qty" type="INTEGER" remarks="Количество во всех сделках"> <constraints nullable="false"/> </column>
+            <column name="last_deal_price" type="NUMERIC(36,8)" remarks="Цена последней сделки"> <constraints nullable="false"/> </column>
+            <column name="last_deal_qty" type="INTEGER" remarks="Количество в последней сделке"> <constraints nullable="false"/> </column>
+            <column name="tod_deal_qty" type="INTEGER" remarks="Количество сделок за сегодня"> <constraints nullable="false"/> </column>
+            <column name="last_deal_volume" type="NUMERIC(36,8)" remarks="Оборот в деньгах последней сделки"> <constraints nullable="false"/> </column>
+            <column name="total_volume" type="NUMERIC(36,8)" remarks="Оборот в деньгах"> <constraints nullable="false"/> </column>
+            <column name="ask_best_price" type="NUMERIC(36,8)" remarks="Лучшая цена спроса"> <constraints nullable="false"/> </column>
+            <column name="ask_best_price_qty" type="INTEGER" remarks="Спрос по лучшей цене"> <constraints nullable="false"/> </column>
+            <column name="ask_total" type="NUMERIC(36,8)" remarks="Спрос по лучшей цене"> <constraints nullable="false"/> </column>
+            <column name="ask_order_qty" type="INTEGER" remarks="Суммарный спрос"> <constraints nullable="false"/> </column>
+            <column name="bid_best_price" type="NUMERIC(36,8)" remarks="Лучшая цена предложения"> <constraints nullable="false"/> </column>
+            <column name="bid_best_price_qty" type="INTEGER" remarks="Предложение по лучшей цене"> <constraints nullable="false"/> </column>
+            <column name="bid_total" type="NUMERIC(36,8)" remarks="Суммарное предложение"> <constraints nullable="false"/> </column>
+            <column name="bid_order_qty" type="INTEGER" remarks="Количество заявок на продажу"> <constraints nullable="false"/> </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create common_market_data PK" author="oleg.gunchenko">
+        <addPrimaryKey
+                schemaName="public"
+                constraintName="common_market_data_pk"
+                tableName="common_market_data"
+                columnNames="id"
+        />
+    </changeSet>
+
+    <changeSet id="create common_market_data code and class index" author="oleg.gunchenko">
+        <createIndex
+                schemaName="public"
+                indexName="idx_common_market_data_code_class"
+                tableName="common_market_data"
+                unique="true"
+        >
+            <column name="instrument_code"/>
+            <column name="instrument_class"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
