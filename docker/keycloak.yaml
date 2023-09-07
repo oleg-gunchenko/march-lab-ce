@@ -1,0 +1,33 @@
+version: '3.5'
+
+services:
+  postgres:
+    image: postgres:13.2
+    restart: unless-stopped
+    env_file: 
+      - keycloak.env
+    networks:
+      - local-keycloak
+
+  keycloak:
+    depends_on:
+      - postgres
+    container_name: local_keycloak
+    env_file: 
+      - keycloak.env
+    environment:
+      DB_VENDOR: postgres
+      DB_ADDR: postgres
+    image: jboss/keycloak:13.0.0
+    ports:
+      - "28080:8080"
+    restart: unless-stopped
+    networks:
+      - local-keycloak
+      - macnet
+
+networks:
+  local-keycloak:
+  macnet:
+    external: true
+    name: drktest0
