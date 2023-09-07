@@ -15,7 +15,7 @@ public class MICEXClientAccount {
     private String limitType;
     @QuikAttr(title = "Код позиции", shortTitle = "Код позиции")
     private String limitType;
-    @QuikAttr(title = "Описание", shortTitle = "Описание")
+    @QuikAttr(title = "Описан   ие", shortTitle = "Описание")
     private String limitType;
     @QuikAttr(title = "Тип торгового счета", shortTitle = "Тип торгового счета")
     private String limitType;
