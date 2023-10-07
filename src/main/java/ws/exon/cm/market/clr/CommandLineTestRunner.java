@@ -6,6 +6,7 @@ import org.kie.api.builder.ReleaseId;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.time.SessionPseudoClock;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import ws.exon.cm.market.model.core.common.Symbol;

@@ -2,14 +2,11 @@ package ws.exon.cm.market.utlis;
 
 import lombok.extern.slf4j.Slf4j;
 import org.drools.core.impl.KnowledgeBaseImpl;
-import org.drools.decisiontable.DecisionTableProviderImpl;
 import org.kie.api.KieBase;
 import org.kie.api.builder.KieFileSystem;
 import org.kie.api.builder.ReleaseId;
 import org.kie.api.io.Resource;
 import org.kie.api.io.ResourceType;
-import org.kie.internal.builder.DecisionTableConfiguration;
-import org.kie.internal.builder.DecisionTableInputType;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.io.ResourceFactory;
@@ -80,16 +77,6 @@ public class DroolsUtil {
 
     private void addClasspathResource(final KieFileSystem kieFileSystem, final String path) {
         kieFileSystem.write(ResourceFactory.newClassPathResource(path)); // "rules/FDInterestRate.xls"
-    }
-
-    public String getDrlFromExcel(String excelFile) {
-        final DecisionTableConfiguration configuration = KnowledgeBuilderFactory.newDecisionTableConfiguration();
-        configuration.setInputType(DecisionTableInputType.XLS);
-
-        final org.kie.api.io.Resource dt = ResourceFactory.newClassPathResource(excelFile, getClass());
-        final DecisionTableProviderImpl decisionTableProvider = new DecisionTableProviderImpl();
-
-        return decisionTableProvider.loadFromResource(dt, null);
     }
 
     public interface ScanResult {

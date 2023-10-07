@@ -25,7 +25,7 @@ public abstract class PageReader<T extends Event> extends DataPage<T> implements
     }
 
     @SneakyThrows
-    public List<MarketEvent> getMargetEvents(final List<MarketEvent> buffer) {
+    public List<MarketEvent> getMarketEvents(final List<MarketEvent> buffer) {
         final List<MarketEvent> result = buffer == null ? new ArrayList<>(this.batchSize) : buffer;
         final List<String> lines = getCurrentBatch();
         if (lines == null || lines.isEmpty())

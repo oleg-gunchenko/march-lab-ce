@@ -4,8 +4,8 @@ import ch.obermuhlner.math.big.BigDecimalMath;
 import lombok.Data;
 import org.apache.commons.lang3.tuple.Pair;
 import org.threeten.extra.LocalDateRange;
-import ws.exon.cm.market.model.core.cep.PriceLong;
 import ws.exon.cm.market.model.core.common.Asset;
+import ws.exon.cm.market.model.core.common.candle.Price;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -43,14 +43,14 @@ public class Portfolio {
         return positions.entrySet().stream().map(e -> {
             final LocalDate date = e.getKey();
             final List<Position.PnL> values = e.getValue().stream().map(p -> {
-                final PriceLong priceLong = p.getAsset().getPrice(p.getOpenDt().toLocalDate());
-                return p.getPnL(priceLong);
+                final Price price = p.getAsset().getPrice(p.getOpenDt().toLocalDate());
+                return p.getPnL(price);
             }).collect(Collectors.toList());
             return Pair.of(date, values);
         }).collect(Collectors.toMap(Pair::getKey, Pair::getValue, (o, n) -> n, TreeMap::new));
     }
 
-    public SortedMap<LocalDate, PnL> getReturns(final SortedMap<LocalDate, final List<Position.PnL>>pnPnl) {
+    public SortedMap<LocalDate, PnL> getReturns(final Asset base, final SortedMap<LocalDate, List<Position.PnL>>pnPnl) {
         final SortedMap<LocalDate, PnL> poPnl = new TreeMap<>();
         BigDecimal funding = accounts.stream().map(Account::getFunding).reduce(BigDecimal.ZERO, BigDecimal::add);
         for (final Map.Entry<LocalDate, List<Position.PnL>> e : pnPnl.entrySet()) {

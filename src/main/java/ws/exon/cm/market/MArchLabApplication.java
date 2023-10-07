@@ -20,6 +20,6 @@ public class MArchLabApplication {
     @PreDestroy
     public void shutdown() {
         ((ConfigurableApplicationContext) applicationContext).close();
-        System.out.println("Shutting Down...............the Backend");
+        System.out.println("Shutting Down...............");
     }
 }
